@@ -1,4 +1,4 @@
-import { createBot, inlineKeyboard, inlineButton } from "@agntdev/bot-toolkit";
+import { createBot, inlineKeyboard, inlineButton, type BotContext } from "@agntdev/bot-toolkit";
 
 // The per-chat session shape (ephemeral conversation state only). Extend as the
 // bot grows. Durable domain data must NOT live here — use the toolkit's
@@ -19,6 +19,15 @@ const MAIN_MENU = inlineKeyboard([
   [inlineButton("About", "menu:about")],
 ]);
 
+const HELP_TEXT = [
+  "Available commands:",
+  "",
+  "/start — Start the bot and see the main menu",
+  "/help — Show this help message",
+].join("\n");
+
+const KNOWN_COMMANDS = new Set(["start", "help"]);
+
 /**
  * buildBot — assembles the bot and registers every handler, but does NOT start
  * it. Shared by the runtime entry (src/index.ts) and the Tests-gate harness
@@ -34,6 +43,10 @@ export function buildBot(token: string) {
     await ctx.reply(WELCOME_TEXT, { reply_markup: MAIN_MENU });
   });
 
+  bot.command("help", async (ctx) => {
+    await ctx.reply(HELP_TEXT);
+  });
+
   bot.callbackQuery("menu:help", async (ctx) => {
     await ctx.answerCallbackQuery();
     await ctx.reply(
@@ -46,6 +59,35 @@ export function buildBot(token: string) {
     await ctx.reply(
       "AGNTDEV Bot — built with grammY and @agntdev/bot-toolkit.",
     );
+  });
+
+  bot.on("message:text").filter(
+    (ctx: BotContext<Session>) => {
+      const msg = ctx.message;
+      if (!msg?.text) return false;
+      const entity = msg.entities?.[0];
+      if (entity?.type === "bot_command" && entity.offset === 0) {
+        const cmd = msg.text.substring(entity.offset + 1, entity.offset + entity.length);
+        const atIndex = cmd.indexOf("@");
+        const cmdName = atIndex === -1 ? cmd : cmd.substring(0, atIndex);
+        return !KNOWN_COMMANDS.has(cmdName);
+      }
+      return false;
+    },
+    async (ctx) => {
+      await ctx.reply(
+        "Sorry, I don't recognize that command. Try /help to see what I can do.",
+      );
+    },
+  );
+
+  bot.catch(async (err) => {
+    console.error("Unhandled error:", err.error);
+    try {
+      await err.ctx.reply("Something went wrong. Please try again later.");
+    } catch {
+      // If we can't even reply, just log it
+    }
   });
 
   return bot;
