@@ -1,0 +1,76 @@
+[
+  {
+    "name": "/start sends welcome message with main menu",
+    "steps": [
+      {
+        "send": { "text": "/start" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Welcome to AGNTDEV Bot!\n\nI can help you manage your tasks, get information, and more.\nUse the menu below to get started, or type /help for a list of commands.",
+              "reply_markup": {
+                "inline_keyboard": [
+                  [
+                    { "text": "Help", "callback_data": "menu:help" }
+                  ],
+                  [
+                    { "text": "About", "callback_data": "menu:about" }
+                  ]
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "menu:help callback replies with help info",
+    "steps": [
+      {
+        "send": { "text": "/start" },
+        "expect": []
+      },
+      {
+        "send": { "text": "menu:help", "type": "_cb" },
+        "expect": [
+          {
+            "method": "answerCallbackQuery",
+            "payload": {}
+          },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Use /start to see the main menu or /help to list all available commands."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "menu:about callback replies with about info",
+    "steps": [
+      {
+        "send": { "text": "/start" },
+        "expect": []
+      },
+      {
+        "send": { "text": "menu:about", "type": "_cb" },
+        "expect": [
+          {
+            "method": "answerCallbackQuery",
+            "payload": {}
+          },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "AGNTDEV Bot — built with grammY and @agntdev/bot-toolkit."
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
