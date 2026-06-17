@@ -1,0 +1,25 @@
+[
+  {
+    "name": "/count increments and returns the counter value",
+    "steps": [
+      {
+        "send": { "text": "/count" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "Count: 1" } }
+        ]
+      },
+      {
+        "send": { "text": "/count" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "Count: 2" } }
+        ]
+      },
+      {
+        "send": { "text": "/count" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "Count: 3" } }
+        ]
+      }
+    ]
+  }
+]

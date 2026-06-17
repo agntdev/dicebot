@@ -1,4 +1,5 @@
 import { createBot } from "@agntdev/bot-toolkit";
+import { incrementAndGet } from "./counter.js";
 
 // The per-chat session shape (ephemeral conversation state only). Extend as the
 // bot grows. Durable domain data must NOT live here — use the toolkit's
@@ -20,6 +21,11 @@ export function buildBot(token: string) {
 
   bot.command("start", async (ctx) => {
     await ctx.reply("Welcome! I am ready to help.");
+  });
+
+  bot.command("count", async (ctx) => {
+    const count = await incrementAndGet();
+    await ctx.reply(`Count: ${count}`);
   });
 
   return bot;
