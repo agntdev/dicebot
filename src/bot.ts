@@ -1,4 +1,5 @@
 import { createBot, inlineKeyboard, inlineButton } from "@agntdev/bot-toolkit";
+import { initDb, incrementAndGetCounter } from "./storage.js";
 
 // The per-chat session shape (ephemeral conversation state only). Extend as the
 // bot grows. Durable domain data must NOT live here — use the toolkit's
@@ -46,6 +47,12 @@ export function buildBot(token: string) {
     await ctx.reply(
       "AGNTDEV Bot — built with grammY and @agntdev/bot-toolkit.",
     );
+  });
+
+  bot.command("count", async (ctx) => {
+    await initDb();
+    const newCount = incrementAndGetCounter();
+    await ctx.reply(`Count: ${newCount}`);
   });
 
   return bot;
